@@ -1,10 +1,9 @@
 'use strict';
-var escapeStr = require('escape-string-regexp');
-var objectAssign = require('object-assign');
+const escapeStr = require('escape-string-regexp');
 
 function matchAll(str, re) {
-	var matches = [];
-	var res = re.exec(str);
+	const matches = [];
+	let res = re.exec(str);
 
 	while (res) {
 		matches.push(res);
@@ -23,18 +22,18 @@ function replaceAll(str, matches) {
 	return matches
 		.reverse()
 		.reduce((res, match) => {
-			var prefix = res.slice(0, match.index);
-			var postfix = res.slice(match.index + match[0].length);
+			const prefix = res.slice(0, match.index);
+			const postfix = res.slice(match.index + match[0].length);
 
 			return prefix + match.replacement + postfix;
 		}, str);
 }
 
 function assignReplacement(match, replacer) {
-	var args = match.concat([match.index, match.input]);
+	const args = match.concat([match.index, match.input]);
 
 	return replacer.apply(null, args)
-		.then(replacement => objectAssign({}, match, {replacement}));
+		.then(replacement => Object.assign({}, match, {replacement}));
 }
 
 module.exports = function (str, re, replacer) {
@@ -46,8 +45,8 @@ module.exports = function (str, re, replacer) {
 		re = new RegExp(escapeStr(re));
 	}
 
-	var matches = matchAll(str, re);
-	var promises = matches.map(match => assignReplacement(match, replacer));
+	const matches = matchAll(str, re);
+	const promises = matches.map(match => assignReplacement(match, replacer));
 
 	return Promise.all(promises)
 		.then(matches => replaceAll(str, matches));
