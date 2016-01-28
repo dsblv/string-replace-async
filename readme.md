@@ -16,7 +16,7 @@ $ npm install --save string-replace-async
 const stringReplaceAsync = require('string-replace-async');
 const ghUser = require('gh-user');
 
-function replace(match, login) {
+function replacer(match, login) {
 	return ghUser(login).then(user => user.name);
 }
 
