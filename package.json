@@ -1,0 +1,37 @@
+{
+  "name": "string-replace-async",
+  "version": "0.0.0",
+  "description": "Asynchronous String.prototype.replace()",
+  "license": "MIT",
+  "repository": "dsblv/string-replace-async",
+  "author": {
+    "name": "Dmitriy Sobolev",
+    "email": "disobolev@icloud.com",
+    "url": "github.com/dsblv"
+  },
+  "engines": {
+    "node": ">=0.12.0"
+  },
+  "scripts": {
+    "test": "xo && ava"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "string",
+    "replace",
+    "regexp",
+    "match",
+    "async",
+    "asynchronous",
+    "promise"
+  ],
+  "dependencies": {
+    "escape-string-regexp": "^1.0.4"
+  },
+  "devDependencies": {
+    "ava": "^0.11.0",
+    "xo": "^0.12.1"
+  }
+}
