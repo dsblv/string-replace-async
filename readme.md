@@ -32,6 +32,12 @@ The API is basically the same as [String.prototype.replace()](https://developer.
 
 ### stringReplaceAsync(string, expression, replacer)
 
+Invokes `replacers` *concurrently*, returns a `promise` that resolves to processed string.
+
+### stringReplaceAsync.seq(string, expression, replacer)
+
+Invokes `replacers` *sequentially*, returns a `promise` that resolves to processed string.
+
 #### string
 
 Type: `string`  
@@ -48,7 +54,7 @@ An expression to match substrings to replace.
 
 #### replacer
 
-Type: `fuction`, `string`  
+Type: `function`, `string`  
 *Required*
 
 A `function` that takes [several arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_function_as_a_parameter) and returns a `promise`. Resolved value will be used as *replacement string*.

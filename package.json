@@ -10,7 +10,7 @@
     "url": "github.com/dsblv"
   },
   "engines": {
-    "node": ">=0.12.0"
+    "node": ">=0.12"
   },
   "scripts": {
     "test": "xo && ava"
@@ -25,10 +25,13 @@
     "match",
     "async",
     "asynchronous",
-    "promise"
+    "promise",
+    "concurrent",
+    "sequence"
   ],
   "dependencies": {
-    "escape-string-regexp": "^1.0.4"
+    "escape-string-regexp": "^1.0.4",
+    "object-assign": "^4.0.1"
   },
   "devDependencies": {
     "ava": "^0.11.0",

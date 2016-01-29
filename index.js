@@ -1,9 +1,10 @@
 'use strict';
-const escapeStr = require('escape-string-regexp');
+var escapeStringRegexp = require('escape-string-regexp');
+var objectAssign = require('object-assign');
 
 function matchAll(str, re) {
-	const matches = [];
-	let res = re.exec(str);
+	var matches = [];
+	var res = re.exec(str);
 
 	while (res) {
 		matches.push(res);
@@ -19,35 +20,66 @@ function matchAll(str, re) {
 }
 
 function replaceAll(str, matches) {
-	return matches
-		.reverse()
-		.reduce((res, match) => {
-			const prefix = res.slice(0, match.index);
-			const postfix = res.slice(match.index + match[0].length);
+	return matches.reverse().reduce(function (res, match) {
+		var prefix = res.slice(0, match.index);
+		var postfix = res.slice(match.index + match[0].length);
 
-			return prefix + match.replacement + postfix;
-		}, str);
+		return prefix + match.replacement + postfix;
+	}, str);
 }
 
 function assignReplacement(match, replacer) {
-	const args = match.concat([match.index, match.input]);
+	var args = match.concat([match.index, match.input]);
 
-	return replacer.apply(null, args)
-		.then(replacement => Object.assign({}, match, {replacement}));
+	return replacer.apply(null, args).then(function (res) {
+		return objectAssign({}, match, {replacement: res});
+	});
 }
 
-module.exports = function (str, re, replacer) {
+function sequence(matches, replacer) {
+	var initialResult = Promise.resolve([]);
+
+	return matches.reduce(function (prev, match) {
+		return prev.then(function (ret) {
+			return assignReplacement(match, replacer).then(function (match) {
+				ret.push(match);
+				return ret;
+			});
+		});
+	}, initialResult);
+}
+
+function concurrency(matches, replacer) {
+	var promises = matches.map(function (match) {
+		return assignReplacement(match, replacer);
+	});
+
+	return Promise.all(promises);
+}
+
+function processString(str, re, replacer, seq) {
 	if (typeof replacer === 'string') {
 		return Promise.resolve(str.replace(re, replacer));
 	}
 
 	if (typeof re === 'string') {
-		re = new RegExp(escapeStr(re));
+		re = new RegExp(escapeStringRegexp(re));
 	}
 
-	const matches = matchAll(str, re);
-	const promises = matches.map(match => assignReplacement(match, replacer));
+	var matches = matchAll(str, re);
+	var processor = seq ? sequence : concurrency;
 
-	return Promise.all(promises)
-		.then(matches => replaceAll(str, matches));
+	return processor(matches, replacer).then(function (matches) {
+		return replaceAll(str, matches);
+	});
+}
+
+function stringReplaceAsync(str, re, replacer) {
+	return processString(str, re, replacer, false);
+}
+
+stringReplaceAsync.seq = function (str, re, replacer) {
+	return processString(str, re, replacer, true);
 };
+
+module.exports = stringReplaceAsync;

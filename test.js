@@ -48,3 +48,19 @@ test('string as a replacer', t => {
 			t.is(res, 'hellalala');
 		});
 });
+
+test('sequential replacer invocation', t => {
+	const string = 'hellololo';
+
+	const replacer = () => new Promise(resolve => {
+		setTimeout(() => resolve('la'), 100);
+	});
+
+	const startTime = Date.now();
+
+	return fn.seq(string, /lo/g, replacer)
+		.then(res => {
+			t.is(res, 'hellalala');
+			t.true(Date.now() - startTime > 299);
+		});
+});
