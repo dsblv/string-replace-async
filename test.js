@@ -64,3 +64,7 @@ test('sequential replacer invocation', t => {
 			t.true(Date.now() - startTime > 299);
 		});
 });
+
+test('reject in a promise', t => fn().catch(() => {
+	t.pass();
+}));

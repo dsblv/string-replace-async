@@ -41,9 +41,8 @@ function sequence(matches, replacer) {
 
 	return matches.reduce(function (prev, match) {
 		return prev.then(function (ret) {
-			return assignReplacement(match, replacer).then(function (match) {
-				ret.push(match);
-				return ret;
+			return assignReplacement(match, replacer).then(function (res) {
+				return ret.concat([res]);
 			});
 		});
 	}, initialResult);
@@ -59,7 +58,7 @@ function concurrency(matches, replacer) {
 
 function processString(str, re, replacer, seq) {
 	if (typeof replacer === 'string') {
-		return Promise.resolve(str.replace(re, replacer));
+		return str.replace(re, replacer);
 	}
 
 	if (typeof re === 'string') {
@@ -74,12 +73,20 @@ function processString(str, re, replacer, seq) {
 	});
 }
 
+function fn(str, re, replacer, seq) {
+	try {
+		return Promise.resolve(processString(str, re, replacer, seq));
+	} catch (e) {
+		return Promise.reject(e);
+	}
+}
+
 function stringReplaceAsync(str, re, replacer) {
-	return processString(str, re, replacer, false);
+	return fn(str, re, replacer, false);
 }
 
 stringReplaceAsync.seq = function (str, re, replacer) {
-	return processString(str, re, replacer, true);
+	return fn(str, re, replacer, true);
 };
 
 module.exports = stringReplaceAsync;
