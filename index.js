@@ -1,6 +1,6 @@
-'use strict';
-var escapeStringRegexp = require('escape-string-regexp');
-var objectAssign = require('object-assign');
+"use strict";
+var escapeStringRegexp = require("escape-string-regexp");
+var objectAssign = require("object-assign");
 
 function matchAll(str, re) {
 	var matches = [];
@@ -20,7 +20,7 @@ function matchAll(str, re) {
 }
 
 function replaceAll(str, matches) {
-	return matches.reverse().reduce(function (res, match) {
+	return matches.reverse().reduce(function(res, match) {
 		var prefix = res.slice(0, match.index);
 		var postfix = res.slice(match.index + match[0].length);
 
@@ -31,17 +31,17 @@ function replaceAll(str, matches) {
 function assignReplacement(match, replacer) {
 	var args = match.concat([match.index, match.input]);
 
-	return replacer.apply(null, args).then(function (res) {
-		return objectAssign({}, match, {replacement: res});
+	return replacer.apply(null, args).then(function(res) {
+		return objectAssign({}, match, { replacement: res });
 	});
 }
 
 function sequence(matches, replacer) {
 	var initialResult = Promise.resolve([]);
 
-	return matches.reduce(function (prev, match) {
-		return prev.then(function (ret) {
-			return assignReplacement(match, replacer).then(function (res) {
+	return matches.reduce(function(prev, match) {
+		return prev.then(function(ret) {
+			return assignReplacement(match, replacer).then(function(res) {
 				return ret.concat([res]);
 			});
 		});
@@ -49,7 +49,7 @@ function sequence(matches, replacer) {
 }
 
 function concurrency(matches, replacer) {
-	var promises = matches.map(function (match) {
+	var promises = matches.map(function(match) {
 		return assignReplacement(match, replacer);
 	});
 
@@ -57,23 +57,24 @@ function concurrency(matches, replacer) {
 }
 
 function processString(str, re, replacer, seq) {
-	if (typeof replacer === 'string') {
+	if (typeof replacer === "string") {
 		return str.replace(re, replacer);
 	}
 
-	if (typeof re === 'string') {
+	if (typeof re === "string") {
 		re = new RegExp(escapeStringRegexp(re));
 	}
 
 	var matches = matchAll(str, re);
 	var processor = seq ? sequence : concurrency;
 
-	return processor(matches, replacer).then(function (matches) {
+	return processor(matches, replacer).then(function(matches) {
 		return replaceAll(str, matches);
 	});
 }
 
 function fn(str, re, replacer, seq) {
+	re.lastIndex = 0;
 	try {
 		return Promise.resolve(processString(str, re, replacer, seq));
 	} catch (e) {
@@ -85,7 +86,7 @@ function stringReplaceAsync(str, re, replacer) {
 	return fn(str, re, replacer, false);
 }
 
-stringReplaceAsync.seq = function (str, re, replacer) {
+stringReplaceAsync.seq = function(str, re, replacer) {
 	return fn(str, re, replacer, true);
 };
 
