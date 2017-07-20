@@ -1,6 +1,22 @@
 import test from 'ava';
 import fn from './';
 
+test('reset lastIndex to 0', t => {
+	const anchorRegex = /<a[^>]*>([^<]+)<\/a>/gi;
+
+	const x = 'Nunquam perdere <a href="https://a.jpg">https://a.jpg</a> olla <a href="https://b.jpg">https://b.jpg</a>.';
+	anchorRegex.test(x);
+
+	const replacer = () => new Promise(resolve => {
+		setTimeout(() => resolve('returned'), 10);
+	});
+
+	fn(x, anchorRegex, replacer)
+		.then(res => {
+			t.is(res, 'Nunquam perdere returned olla returned.');
+		});
+});
+
 test('replace with global flag', t => {
 	const string = 'hellololo';
 
