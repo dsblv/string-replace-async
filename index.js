@@ -74,6 +74,9 @@ function processString(str, re, replacer, seq) {
 }
 
 function fn(str, re, replacer, seq) {
+	if (re instanceof RegExp) {
+		re.lastIndex = 0;
+	}
 	try {
 		return Promise.resolve(processString(str, re, replacer, seq));
 	} catch (e) {
