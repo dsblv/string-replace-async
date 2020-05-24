@@ -20,7 +20,7 @@ function matchAll(str, re) {
 }
 
 function replaceAll(str, matches) {
-	return matches.reverse().reduce(function (res, match) {
+	return matches.reduceRight(function (res, match) {
 		var prefix = res.slice(0, match.index);
 		var postfix = res.slice(match.index + match[0].length);
 
