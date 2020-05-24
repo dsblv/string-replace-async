@@ -1,3 +1,4 @@
+import assert from 'assert';
 import test from 'ava';
 import fn from './';
 
@@ -17,12 +18,16 @@ test('reset lastIndex to 0', t => {
 		});
 });
 
+const replacer = (match, index, input, ...empty) => {
+	assert.deepStrictEqual(empty, []);
+	assert.strictEqual(match, 'lo');
+	assert(typeof index === 'number');
+	assert.strictEqual(input, 'hellololo');
+	return Promise.resolve('la');
+};
+
 test('replace with global flag', t => {
 	const string = 'hellololo';
-
-	const replacer = () => new Promise(resolve => {
-		setTimeout(() => resolve('la'), 10);
-	});
 
 	return fn(string, /lo/g, replacer)
 		.then(res => {
@@ -33,10 +38,6 @@ test('replace with global flag', t => {
 test('replace without global flag', t => {
 	const string = 'hellololo';
 
-	const replacer = () => new Promise(resolve => {
-		setTimeout(() => resolve('la'), 10);
-	});
-
 	return fn(string, /lo/, replacer)
 		.then(res => {
 			t.is(res, 'hellalolo');
@@ -45,10 +46,6 @@ test('replace without global flag', t => {
 
 test('macth by a string', t => {
 	const string = 'hellololo';
-
-	const replacer = () => new Promise(resolve => {
-		setTimeout(() => resolve('la'), 10);
-	});
 
 	return fn(string, 'lo', replacer)
 		.then(res => {
