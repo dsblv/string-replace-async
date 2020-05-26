@@ -1,6 +1,5 @@
 'use strict';
 var escapeStringRegexp = require('escape-string-regexp');
-var objectAssign = require('object-assign');
 
 function matchAll(str, re) {
 	var matches = [];
@@ -32,7 +31,11 @@ function assignReplacement(match, replacer) {
 	var args = match.concat([match.index, match.input]);
 
 	return replacer.apply(null, args).then(function (res) {
-		return objectAssign({}, match, {replacement: res});
+		return {
+			0: match[0],
+			index: match.index,
+			replacement: res
+		};
 	});
 }
 
