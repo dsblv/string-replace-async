@@ -13,7 +13,7 @@
     "node": ">=0.12"
   },
   "scripts": {
-    "test": "xo && ava"
+    "test": "ava"
   },
   "files": [
     "index.js"
@@ -26,14 +26,9 @@
     "async",
     "asynchronous",
     "promise",
-    "concurrent",
-    "sequence"
+    "concurrent"
   ],
-  "dependencies": {
-    "escape-string-regexp": "^1.0.4"
-  },
   "devDependencies": {
-    "ava": "^0.11.0",
-    "xo": "^0.12.1"
+    "ava": "^0.11.0"
   }
 }
