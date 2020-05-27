@@ -193,13 +193,13 @@ describe("Concurrency", () => {
     let finised = [];
     await replace(
       `          Horse race!
-				F |  	🏇                 | 1
-				I	|	🏇                   | 2
-				N	|	    🏇               | 3
-				I	|	        🏇           | 4
-				S	|🏇                    | 5
-				H	|	    🏇               | 6
-				`,
+        F |    🏇                 | 1
+        I |  🏇                   | 2
+        N |      🏇               | 3
+        I |          🏇           | 4
+        S |🏇                     | 5
+        H |      🏇               | 6
+      `,
       /\|(\s*)🏇\s*\| (\d*)/gi,
       (horsey, distance, number) => {
         return new Promise((resolve) => {
