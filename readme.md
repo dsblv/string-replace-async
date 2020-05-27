@@ -1,65 +1,60 @@
-# string-replace-async [![Build Status](https://travis-ci.org/dsblv/string-replace-async.svg?branch=master)](https://travis-ci.org/dsblv/string-replace-async)
+# string-replace-async
 
-> Asynchronous String.prototype.replace()
+> A vesion of "string".replace() that knows how to wait
 
-
-## Install
+## Installation
 
 ```
-$ npm install --save string-replace-async
+$ npm install string-replace-async
 ```
-
 
 ## Usage
 
 ```js
-const stringReplaceAsync = require('string-replace-async');
-const ghUser = require('gh-user');
+let replaceAsync = require("string-replace-async");
 
-function replacer(match, login) {
-	return ghUser(login).then(user => user.name);
-}
+let message = await replaceAsync(
+  `Follow me on twitter maybe: @hypercrabs`,
+  /@(\w+)/g,
+  async (match, handle) => {
+    let { name } = await fetchUserDataFromTwitter(handle);
+    return `<a href="https://twitter.com/${handle}">${name}</a>`;
+  }
+);
 
-stringReplaceAsync('Sup, {dsblv}', /{([^}]*)}/g, replacer)
-	.then(console.log);
-//=> 'Sup, Dimzel Sobolev'
+// 'Follow me on twitter maybe: <a href="https://twitter.com/hypercrabs">Dima Sobolev</a>'
 ```
-
 
 ## API
 
-The API is basically the same as [String.prototype.replace()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace), except the first argument is a string itself.
+API is basically
+[String.prototype.replace()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace), except the first argument is a string itself.
 
-### stringReplaceAsync(string, expression, replacer)
+### replaceAsync(string, searchValue, replaceValue)
 
-Invokes `replacers` *concurrently*, returns a `promise` that resolves to processed string.
-
-### stringReplaceAsync.seq(string, expression, replacer)
-
-Invokes `replacers` *sequentially*, returns a `promise` that resolves to processed string.
+Runs `replaceValue` and waits for it to resolve before replacing `searchValue`
+with results. If `searchValue` is a _global_ RegExp, `replaceValue` will be
+called concurrently for every match.
 
 #### string
 
 Type: `string`  
-*Required*
+_Required_
 
 A string to be processed.
 
-#### expression
+#### searchValue
 
-Type: `regexp`, `string`  
-*Required*
+Type: `regexp`, `string`
 
 An expression to match substrings to replace.
 
-#### replacer
+#### replaceValue
 
-Type: `function`, `string`  
-*Required*
+Type: `function`, `string`
 
-A `function` that takes [several arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_function_as_a_parameter) and returns a `promise`. Resolved value will be used as *replacement string*.
-
+A `function` that takes [several arguments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_function_as_a_parameter) and returns a `promise`. Resolved value will be used as _replacement string_.
 
 ## License
 
-MIT © [Dmitriy Sobolev](http://github.com/dsblv)
+MIT © [Dmitrii Sobolev](http://github.com/dsblv)
