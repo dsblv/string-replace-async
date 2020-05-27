@@ -1,7 +1,22 @@
 const replace = require("./index.js");
 
 describe("Regression tests", () => {
-  it("Issue #1 set lastIndex to 0 for regex.", async () => {
+  test("Snippet from Readme", async () => {
+    let message = await replace(
+      `Follow me on twitter maybe: @hypercrabs`,
+      /@(\w+)/g,
+      async (match, handle) => {
+        let name = "Dima Sobolev";
+        return `<a href="https://twitter.com/${handle}">${name}</a>`;
+      }
+    );
+
+    expect(message).toEqual(
+      'Follow me on twitter maybe: <a href="https://twitter.com/hypercrabs">Dima Sobolev</a>'
+    );
+  });
+
+  test("Issue #1 set lastIndex to 0 for regex.", async () => {
     const anchorRegex = /<a[^>]*>([^<]+)<\/a>/gi;
 
     const x =
