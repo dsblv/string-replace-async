@@ -13,7 +13,7 @@
     "node": ">=0.12"
   },
   "scripts": {
-    "test": "ava"
+    "test": "jest"
   },
   "files": [
     "index.js"
@@ -29,6 +29,6 @@
     "concurrent"
   ],
   "devDependencies": {
-    "ava": "^0.11.0"
+    "jest": "^26.0.1"
   }
 }

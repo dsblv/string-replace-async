@@ -1,67 +1,216 @@
-import assert from 'assert';
-import test from 'ava';
-import fn from './';
+const replace = require("./index.js");
 
-test('reset lastIndex to 0', t => {
-	const anchorRegex = /<a[^>]*>([^<]+)<\/a>/gi;
+describe("Regression tests", () => {
+  it("Issue #1 set lastIndex to 0 for regex.", async () => {
+    const anchorRegex = /<a[^>]*>([^<]+)<\/a>/gi;
 
-	const x = 'Nunquam perdere <a href="https://a.jpg">https://a.jpg</a> olla <a href="https://b.jpg">https://b.jpg</a>.';
-	anchorRegex.test(x);
+    const x =
+      'Nunquam perdere <a href="https://a.jpg">https://a.jpg</a> olla <a href="https://b.jpg">https://b.jpg</a>.';
+    anchorRegex.test(x);
 
-	const replacer = () => new Promise(resolve => {
-		setTimeout(() => resolve('returned'), 10);
-	});
-
-	fn(x, anchorRegex, replacer)
-		.then(res => {
-			t.is(res, 'Nunquam perdere returned olla returned.');
-		});
+    expect(
+      await replace(x, anchorRegex, () => Promise.resolve("returned"))
+    ).toEqual("Nunquam perdere returned olla returned.");
+  });
 });
 
-const replacer = (match, index, input, ...empty) => {
-	assert.deepStrictEqual(empty, []);
-	assert.strictEqual(match, 'lo');
-	assert(typeof index === 'number');
-	assert.strictEqual(input, 'hellololo');
-	return Promise.resolve('la');
-};
+describe("No arguments case", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype")).toBeInstanceOf(Promise);
+  });
 
-test('replace with global flag', t => {
-	const string = 'hellololo';
-
-	return fn(string, /lo/g, replacer)
-		.then(res => {
-			t.is(res, 'hellalala');
-		});
+  it("Throws async error", () => {
+    return replace().catch((error) => {
+      expect(error.message).toEqual(
+        "String.prototype.replace called on null or undefined"
+      );
+    });
+  });
 });
 
-test('replace without global flag', t => {
-	const string = 'hellololo';
+describe("Single argument case", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype")).toBeInstanceOf(Promise);
+  });
 
-	return fn(string, /lo/, replacer)
-		.then(res => {
-			t.is(res, 'hellalolo');
-		});
+  it("Doesn't do anything to a string", async () => {
+    expect(await replace("prototype")).toEqual("prototype");
+  });
+
+  it("Converts arbitrary values to strings", async () => {
+    expect(await replace(10)).toEqual("10");
+    expect(await replace(0.1)).toEqual("0.1");
+    expect(
+      await replace({
+        toString() {
+          return ":)";
+        },
+      })
+    ).toEqual(":)");
+  });
 });
 
-test('macth by a string', t => {
-	const string = 'hellololo';
+describe("No replaceValue", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype", "p")).toBeInstanceOf(Promise);
+  });
 
-	return fn(string, 'lo', replacer)
-		.then(res => {
-			t.is(res, 'hellalolo');
-		});
+  it("Replaces matches with 'undefined'", async () => {
+    expect(await replace("prototype", "p")).toEqual("undefinedrototype");
+    expect(await replace("prototype", /p/)).toEqual("undefinedrototype");
+    expect(await replace("prototype", /p/g)).toEqual(
+      "undefinedrototyundefinede"
+    );
+  });
 });
 
-test('string as a replacer', t => {
-	const string = 'hellololo';
+describe("String replaceValue", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype", "p", "b")).toBeInstanceOf(Promise);
+  });
 
-	return fn(string, /lo/g, 'la')
-		.then(res => {
-			t.is(res, 'hellalala');
-		});
+  it("Correctily replaces matches", async () => {
+    expect(await replace("prototype", "p", "b")).toEqual("brototype");
+    expect(await replace("prototype", /p/, "b")).toEqual("brototype");
+    expect(await replace("prototype", /p/g, "b")).toEqual("brototybe");
+  });
 });
 
-test('reject in a promise', t => fn().catch(() => {
-	t.pass();
-}));
+describe("Synchronous function replaceValue", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype", "p", () => "b")).toBeInstanceOf(Promise);
+  });
+
+  it("Correctily replaces matches", async () => {
+    expect(await replace("prototype", "p", () => "b")).toEqual("brototype");
+    expect(
+      await replace("prototype", /p/, (match) => "(" + match + ")")
+    ).toEqual("(p)rototype");
+    expect(
+      await replace("prototype", /p/g, (match) => "(" + match + ")")
+    ).toEqual("(p)rototy(p)e");
+    expect(
+      await replace(
+        "prototype",
+        /p(.)/g,
+        (match, group) => "p" + group.toUpperCase()
+      )
+    ).toEqual("pRototypE");
+  });
+
+  it("Passes expected arguments to replaceValue", async () => {
+    await replace("prototype", "p", (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(0);
+      expect(c).toEqual("prototype");
+    });
+
+    await replace("prototype", /p/, (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(0);
+      expect(c).toEqual("prototype");
+    });
+
+    let nextExpectedIndex = 0;
+    await replace("prototype", /p/g, (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(nextExpectedIndex);
+      expect(c).toEqual("prototype");
+      nextExpectedIndex = 7;
+    });
+
+    let nextExpectedMatch = "pr";
+    let nextExpectedGroup = "r";
+    await replace("prototype", /p(.)/g, (a, b, c, d) => {
+      expect(a).toEqual(nextExpectedMatch);
+      expect(b).toEqual(nextExpectedGroup);
+      expect(d).toEqual("prototype");
+      nextExpectedMatch = "pe";
+      nextExpectedGroup = "e";
+    });
+  });
+});
+
+describe("Asynchronous function replaceValue", () => {
+  it("Returns a Promise", () => {
+    expect(replace("prototype", "p", async () => "b")).toBeInstanceOf(Promise);
+  });
+
+  it("Correctily replaces matches", async () => {
+    expect(await replace("prototype", "p", async () => "b")).toEqual(
+      "brototype"
+    );
+    expect(
+      await replace("prototype", /p/, async (match) => "(" + match + ")")
+    ).toEqual("(p)rototype");
+    expect(
+      await replace("prototype", /p/g, async (match) => "(" + match + ")")
+    ).toEqual("(p)rototy(p)e");
+    expect(
+      await replace(
+        "prototype",
+        /p(.)/g,
+        async (match, group) => "p" + group.toUpperCase()
+      )
+    ).toEqual("pRototypE");
+  });
+
+  it("Passes expected arguments to replaceValue", async () => {
+    await replace("prototype", "p", async (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(0);
+      expect(c).toEqual("prototype");
+    });
+
+    await replace("prototype", /p/, async (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(0);
+      expect(c).toEqual("prototype");
+    });
+
+    let nextExpectedIndex = 0;
+    await replace("prototype", /p/g, async (a, b, c) => {
+      expect(a).toEqual("p");
+      expect(b).toEqual(nextExpectedIndex);
+      expect(c).toEqual("prototype");
+      nextExpectedIndex = 7;
+    });
+
+    let nextExpectedMatch = "pr";
+    let nextExpectedGroup = "r";
+    await replace("prototype", /p(.)/g, async (a, b, c, d) => {
+      expect(a).toEqual(nextExpectedMatch);
+      expect(b).toEqual(nextExpectedGroup);
+      expect(d).toEqual("prototype");
+      nextExpectedMatch = "pe";
+      nextExpectedGroup = "e";
+    });
+  });
+});
+
+describe("Concurrency", () => {
+  it("Runs replaceValue concurrently", async () => {
+    let finised = [];
+    await replace(
+      `          Horse race!
+				F |  	🏇                 | 1
+				I	|	🏇                   | 2
+				N	|	    🏇               | 3
+				I	|	        🏇           | 4
+				S	|🏇                    | 5
+				H	|	    🏇               | 6
+				`,
+      /\|(\s*)🏇\s*\| (\d*)/gi,
+      (horsey, distance, number) => {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            finised.push(number);
+            resolve();
+          }, distance.length * 100);
+        });
+      }
+    );
+
+    expect(finised).toEqual(["5", "2", "1", "3", "6", "4"]);
+  });
+});
