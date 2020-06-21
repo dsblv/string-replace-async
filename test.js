@@ -2,17 +2,53 @@ const replace = require("./index.js");
 
 describe("Regression tests", () => {
   test("Snippet from Readme", async () => {
-    let message = await replace(
-      `Follow me on twitter maybe: @hypercrabs`,
-      /@(\w+)/g,
-      async (match, handle) => {
-        let name = "Dima Sobolev";
-        return `<a href="https://twitter.com/${handle}">${name}</a>`;
+    async function getColorByName(name) {
+      switch (name) {
+        case "papayawhip":
+          return "FFEFD5";
+        case "rebeccapurple":
+          return "663399";
       }
-    );
+    }
 
-    expect(message).toEqual(
-      'Follow me on twitter maybe: <a href="https://twitter.com/hypercrabs">Dima Sobolev</a>'
+    let spec =
+      "I want background to be #papayawhip and borders #rebeccapurple.";
+
+    expect(
+      await replace(spec, /#(\w+)/g, async (match, name) => {
+        let color = await getColorByName(name);
+        return "#" + color + " (" + name + ")";
+      })
+    ).toEqual(
+      "I want background to be #FFEFD5 (papayawhip) and borders #663399 (rebeccapurple)."
+    );
+  });
+
+  test("Sequence snippet", async () => {
+    let sequence = Promise.resolve();
+    let seq = (fn) => (...args) =>
+      (sequence = sequence.then(() => fn(...args)));
+
+    let log = "";
+
+    expect(
+      await replace(
+        "prototype",
+        /./g,
+        seq((match) => {
+          log += "<" + match + ">";
+          return new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(match.toUpperCase());
+              log += "</" + match + ">";
+            }, 100);
+          });
+        })
+      )
+    ).toEqual("PROTOTYPE");
+
+    expect(log).toEqual(
+      "<p></p><r></r><o></o><t></t><o></o><t></t><y></y><p></p><e></e>"
     );
   });
 
