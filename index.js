@@ -5,20 +5,17 @@ module.exports = function stringReplaceAsync(
 ) {
   try {
     if (typeof replaceValue === "function") {
-      // Step 1: Call native `replace` one time to acquire arguments for
-      // `replaceValue` function
-      // Step 2: Collect all return values in an array
-      // Step 3: Run `Promise.all` on collected values to resolve them
-      // Step 4: Call native `replace` the second time, replacing substrings
-      // with resolved values in order of occurance!
-      var promises = [];
+      // 1. Run fake pass of `replace`, collect values from `replaceValue` calls
+      // 2. Resolve them with `Promise.all`
+      // 3. Run `replace` with resolved values
+      var values = [];
       String.prototype.replace.call(string, searchValue, function () {
-        promises.push(replaceValue.apply(undefined, arguments));
+        values.push(replaceValue.apply(undefined, arguments));
         return "";
       });
-      return Promise.all(promises).then(function (values) {
+      return Promise.all(values).then(function (resolvedValues) {
         return String.prototype.replace.call(string, searchValue, function () {
-          return values.shift();
+          return resolvedValues.shift();
         });
       });
     } else {
