@@ -21,14 +21,14 @@ await replaceAsync("#rebeccapurple", /#(\w+)/g, async (match, name) => {
 
 ## The Why
 
-Say you have a task of replacing color names in a string with their respective hex codes.
+Say you have a task of replacing color names with their respective hex codes.
 
 ```js
 let spec = "I want background to be #papayawhip and borders #rebeccapurple.";
-// convert to "I want background to be #FFEFD5 (papayawhip) and borders #663399 (rebeccapurple).";
+// make it "I want background to be #FFEFD5 (papayawhip) and borders #663399 (rebeccapurple).";
 ```
 
-Luckily, strings in JavaScript have this handy method built in, so you use it.
+Luckily, strings in JavaScript have this handy `replace` method built in, so you use it.
 
 ```js
 spec.replace(/#(\w+)/g, (match, name) => {
@@ -37,7 +37,7 @@ spec.replace(/#(\w+)/g, (match, name) => {
 });
 ```
 
-Time passes, a new requirement comes in: now you have to query a database for custom colors. This is an async operation, so naturally you convert `getColorByName` into async function.
+Time passes, a new requirement emerges: now you have to query a database for custom colors. This is an async operation, so naturally you convert `getColorByName` into async function.
 
 Turns out it has a cost: now all the code above should also be async. You try this:
 
@@ -68,11 +68,9 @@ Yay!
 API is
 [String.prototype.replace()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace), except the first argument is a string itself.
 
-### replaceAsync(string, searchValue, replaceValue)
+### replaceAsync(string, searchValue, replace)
 
-Runs `replaceValue` and waits for it to resolve before replacing `searchValue`
-with results. If `searchValue` is a _global_ RegExp, `replaceValue` will be
-called concurrently for every match.
+Runs `replace` and waits for it to resolve before replacing `searchValue` with results. If `searchValue` is a _global_ RegExp, `replace` will be called concurrently for every match.
 
 #### string
 
@@ -87,7 +85,7 @@ Type: `regexp`, `string`
 
 An expression to match substrings to replace.
 
-#### replaceValue
+#### replace
 
 Type: `function`, `string`
 
@@ -95,7 +93,7 @@ A `function` that takes [several arguments](https://developer.mozilla.org/en-US/
 
 ## A Note on Concurrency
 
-Previously this module had an aditional menhod `seq()` that ran `replaceValue` functions one by one instead of all at once. We decided to remove it to cut more weight from the package. Here's a snippet that achieves the same effect:
+Previously this module had aditional menhod `seq()` that ran `replace` functions one by one instead of all at once. We decided to remove it to narrow our scope. Here's a snippet that achieves the same effect:
 
 ```js
 let sequence = Promise.resolve();

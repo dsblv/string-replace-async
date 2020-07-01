@@ -16,7 +16,8 @@
     "test": "jest"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "index.d.ts"
   ],
   "keywords": [
     "string",
