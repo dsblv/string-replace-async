@@ -10,6 +10,7 @@
     "url": "https://github.com/dsblv"
   },
   "type": "module",
+  "main": "index.js",
   "engines": {
     "node": ">= 14.0.0"
   },
