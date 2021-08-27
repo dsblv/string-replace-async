@@ -8,10 +8,16 @@
 $ npm install string-replace-async
 ```
 
+**Note:** If you're using pre-14 version of Node or your node codebase isn't converted to [ES Modules](https://nodejs.org/api/esm.html#esm_introduction) yet, please use Version 2 specifically!
+
+```
+$ npm install string-replace-async@^2.0.0
+```
+
 ## Usage
 
 ```js
-let replaceAsync = require("string-replace-async");
+import replaceAsync from "string-replace-async";
 
 await replaceAsync("#rebeccapurple", /#(\w+)/g, async (match, name) => {
   let color = await getColorByName(name);
