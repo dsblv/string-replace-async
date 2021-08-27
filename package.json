@@ -14,7 +14,7 @@
     "node": ">= 14.0.0"
   },
   "scripts": {
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "files": [
     "index.js",

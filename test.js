@@ -1,4 +1,4 @@
-const replace = require("./index.js");
+import replace from "./index.js";
 
 describe("Regression tests", () => {
   test("Snippet from Readme", async () => {
