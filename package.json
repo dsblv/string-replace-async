@@ -1,6 +1,6 @@
 {
   "name": "string-replace-async",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Asynchronous String.prototype.replace()",
   "license": "MIT",
   "repository": "dsblv/string-replace-async",
@@ -9,8 +9,9 @@
     "email": "disobolev@icloud.com",
     "url": "https://github.com/dsblv"
   },
+  "type": "module",
   "engines": {
-    "node": ">=0.12"
+    "node": ">= 14.0.0"
   },
   "scripts": {
     "test": "jest"

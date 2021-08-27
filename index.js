@@ -1,4 +1,4 @@
-module.exports = function replaceAsync(string, searchValue, replacer) {
+export default function replaceAsync(string, searchValue, replacer) {
   try {
     if (typeof replacer === "function") {
       // 1. Run fake pass of `replace`, collect values from `replacer` calls
@@ -22,4 +22,4 @@ module.exports = function replaceAsync(string, searchValue, replacer) {
   } catch (error) {
     return Promise.reject(error);
   }
-};
+}
