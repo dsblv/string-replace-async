@@ -1,6 +1,6 @@
 {
   "name": "string-replace-async",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Asynchronous String.prototype.replace()",
   "license": "MIT",
   "repository": "dsblv/string-replace-async",
