@@ -22,4 +22,4 @@ declare function replaceAsync(
   replacer: (substring: string, ...args: any[]) => Promise<string> | string
 ): Promise<string>;
 
-export = replaceAsync;
+export default replaceAsync;
