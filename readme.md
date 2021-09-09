@@ -99,7 +99,7 @@ A `function` that takes [several arguments](https://developer.mozilla.org/en-US/
 
 ## A Note on Concurrency
 
-Previously this module had aditional menhod `seq()` that ran `replace` functions one by one instead of all at once. We decided to remove it to narrow our scope. Here's a snippet that achieves the same effect:
+Previously this module had an additional method `seq()` that ran `replace` functions one by one instead of all at once. We decided to remove it to narrow our scope. Here's a snippet that achieves the same effect:
 
 ```js
 let sequence = Promise.resolve();
